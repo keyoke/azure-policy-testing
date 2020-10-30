@@ -28,10 +28,10 @@ steps:
     workingDirectory: $(Build.SourcesDirectory)
   - pwsh: |
       # UNIX Path
-      $cachePath = $(UserProfile)/.local/share/powershell/Modules/
+      $cachePath = "$(UserProfile)/.local/share/powershell/Modules/"
       # Windows Path
-      if ('$(Agent.OS)' -eq 'Windows_NT') {
-        $cachePath = $(UserProfile)\Documents\PowerShell\Modules
+      if ("$(Agent.OS)" -eq "Windows_NT") {
+        $cachePath = "$(UserProfile)\Documents\PowerShell\Modules"
       }       
       Write-Host "##vso[task.setvariable variable=cachePath;isOutput=true]$cachePath"
     name: GetCachePath
