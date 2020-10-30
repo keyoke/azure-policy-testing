@@ -26,22 +26,22 @@ steps:
     displayName: 'Hash Files'
     name: hashfiles
     workingDirectory: $(Build.SourcesDirectory)
+  - pwsh: |
+      # UNIX Path
+      $cachePath = $(UserProfile)/.local/share/powershell/Modules/
+      # Windows Path
+      if ('$(Agent.OS)' -eq 'Windows_NT') {
+        $cachePath = $(UserProfile)\Documents\PowerShell\Modules
+      }       
+      Write-Host "##vso[task.setvariable variable=cachePath;isOutput=true]$cachePath"
+    name: GetCachePath
   - task: Cache@2
     displayName: 'Cache PowerShell modules on Windows'
     name: cache_psmodules
-    condition: eq( variables['Agent.OS'], 'Windows_NT' )
     inputs:      
       key: psmodules | "$(Agent.OS)" | "$(hashfiles.psmodules)"
-      cacheHitVar: ne(variables.cache_psmodules.cache_hit            
-      path: $(UserProfile)\Documents\PowerShell\Modules
-  - task: Cache@2  
-    displayName: 'Cache PowerShell modules on Unix'
-    name: cache_psmodules
-    condition: ne( variables['Agent.OS'], 'Windows_NT' )
-    inputs:      
-      key: psmodules | "$(Agent.OS)" | "$(hashfiles.psmodules)"
-      cacheHitVar: ne(variables.cache_psmodules.cache_hit      
-      path: $(UserProfile)/.local/share/powershell/Modules/
+      cacheHitVar: cache_hit
+      path: $(GetCachePath.cachePath)
   - pwsh: |
       # Install the required PS Modules
       Get-Content -Path ./psmodules.json | ConvertFrom-Json | ForEach-Object {
